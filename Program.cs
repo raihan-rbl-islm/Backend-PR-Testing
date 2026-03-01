@@ -3,28 +3,37 @@ using System.IO;
 
 namespace SolidPractice
 {
-    public interface IWorker
-    {
-        void Work();
-        void Eat();
-        void CalculateBonus();
-    }
 
-    public class HumanWorker : IWorker
+    public interface ICanWork { void Work(); }
+
+    public interface ICanEat { void Eat(); }
+
+    public interface IHaveBonus { void CalculateBonus(); }
+
+    public interface ILogger { void LogError(string message); }
+
+    public class HumanWorker : ICanWork, ICanEat, IHaveBonus
     {
         public void Work() => Console.WriteLine("Working hard.");
+
         public void Eat() => Console.WriteLine("Eating lunch in the breakroom.");
+
         public void CalculateBonus() => Console.WriteLine("Bonus calculated for human.");
     }
 
-    public class RobotWorker : IWorker
+    public class RobotWorker : ICanWork
     {
         public void Work() => Console.WriteLine("Working at 100% efficiency.");
-        public void Eat() => throw new NotImplementedException("Robots do not eat!");
-        public void CalculateBonus() => throw new NotImplementedException("Robots do not get bonuses!");
     }
 
-    public class FileLogger
+    public class Intern : ICanEat, ICanWork
+    {
+        public void Work() => System.Console.WriteLine("Working as an Intern");
+
+        public void Eat() => System.Console.WriteLine("Food here is great");
+    }
+
+    public class FileLogger : ILogger
     {
         public void LogError(string message)
         {
@@ -34,39 +43,35 @@ namespace SolidPractice
 
     public class EmployeeManager
     {
-        private FileLogger _logger;
+        private readonly ILogger _logger;
 
-        public EmployeeManager()
+        public EmployeeManager(ILogger logger)
         {
-            _logger = new FileLogger();
+            _logger = logger;
         }
 
-        public void ManageWorker(IWorker worker, string workerType)
+        public void ManageWorker(ICanWork worker)
         {
             Console.WriteLine("Starting management process...");
 
-            worker.Work();
+            try
+            {
+                worker.Work();
 
-            if (workerType == "Human")
-            {
-                worker.Eat();
-                worker.CalculateBonus();
-            }
-            else if (workerType == "Robot")
-            {
-                try
+                if (worker is ICanEat canEat)
                 {
-                    worker.Eat();
+                    canEat.Eat();
                 }
-                catch (Exception ex)
+
+                if (worker is IHaveBonus haveBonus)
                 {
-                    _logger.LogError("System failure: " + ex.Message);
+                    haveBonus.CalculateBonus();
                 }
             }
-            else if (workerType == "Intern")
+
+            catch (Exception ex)
             {
-                worker.Eat();
-                Console.WriteLine("Interns do not get bonuses yet.");
+                _logger.LogError("System failure: " + ex.Message);
             }
 
             Console.WriteLine("Management process finished.");
