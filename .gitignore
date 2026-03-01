@@ -5,3 +5,4 @@ obj/
 *.suo
 *.csproj
 *.sln
+.DS_Store
