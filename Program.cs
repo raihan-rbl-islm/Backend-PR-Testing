@@ -74,7 +74,7 @@ namespace SolidPractice
                 _logger.LogError("System failure: " + ex.Message);
             }
 
-            Console.WriteLine("Management process finished.");
+            Console.WriteLine("Management process is finished!");
         }
     }
 }
